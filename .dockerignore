@@ -1,0 +1,15 @@
+**/.git
+**/.gitignore
+**/bin
+**/obj
+**/.vs
+**/.vscode
+.DS_Store
+.dockerignore
+Dockerfile*
+docker-compose.yml
+README.md
+SETUP.md
+CHANGELOG.md
+LICENSE
+.github

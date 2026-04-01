@@ -61,14 +61,29 @@ BridgeAPI atua como uma camada middleware que permite que clientes JavaScript se
 
 ## Instalação e Setup
 
-### 1. Clonar o Repositório
+### Opção 1: Script Automático (Recomendado)
+
+**Windows:**
+```cmd
+run.bat
+```
+
+**macOS/Linux:**
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+### Opção 2: Instalação Manual
+
+#### 2.1 Clonar o Repositório
 
 ```bash
 git clone https://github.com/URSoftware/BridgeAPI.git
 cd BridgeAPI
 ```
 
-### 2. Setup do Backend C#
+#### 2.2 Setup do Backend C#
 
 ```bash
 # Restaurar dependências
@@ -83,14 +98,28 @@ dotnet run
 
 A API estará disponível em `http://localhost:5000`
 
-### 3. Documentação da API (Swagger)
+#### 2.3 Com Porta Customizada
+
+**Windows:**
+```powershell
+$env:ASPNETCORE_URLS="http://localhost:5001"
+dotnet run
+```
+
+**macOS/Linux:**
+```bash
+export ASPNETCORE_URLS="http://localhost:5001"
+dotnet run
+```
+
+### Documentação da API (Swagger)
 
 Acesse a documentação interativa em:
 ```
 http://localhost:5000/swagger
 ```
 
-### 4. Testar Conexão (Health Check)
+### Testar Conexão (Health Check)
 
 ```bash
 curl http://localhost:5000/api/health
@@ -98,6 +127,8 @@ curl http://localhost:5000/api/health
 # Resposta esperada:
 # {"status":"healthy","timestamp":"2026-04-01T21:05:20Z","version":"1.0.0"}
 ```
+
+Para instruções detalhadas, consulte [SETUP.md](SETUP.md)
 
 ## Endpoints da API
 

@@ -30,6 +30,9 @@ https://seu-dominio.railway.app/api/health
 
 **Desvantagem:** Servidor dorme após 15 min inativo
 
+**Solução:** Configure UptimeRobot para ping automático
+- Guia: [RENDER_SIMPLE_SETUP.md](RENDER_SIMPLE_SETUP.md) (mantém API sempre ativa)
+
 ---
 
 ### Opção 3: Replit (Gratuito)
@@ -78,8 +81,9 @@ git push origin master
 ## 🔗 Links Úteis
 
 - [Guia Completo de Deployment](FREE_DEPLOY.md)
+- [Guia Gratuito no Railway](FREE_DEPLOY.md)
+- [Render + Sempre Ativo](RENDER_SIMPLE_SETUP.md)
 - [Guia de Instalação Local](SETUP.md)
-- [Documentação Swagger](#) (após deploy)
 - [Railway Docs](https://docs.railway.app/)
 
 ---

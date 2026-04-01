@@ -1,36 +1,36 @@
 name: Keep Render API Alive
 
 on:
-  schedule:
-    # Executar a cada 5 minutos
-    - cron: '*/5 * * * *'
-  
-  # Permitir execução manual
-  workflow_dispatch:
+    schedule:
+        # Executar a cada 5 minutos
+        - cron: "*/5 * * * *"
+
+    # Permitir execução manual
+    workflow_dispatch:
 
 jobs:
-  keepalive:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Ping API Health Endpoint
-        run: |
-          # Substitua com sua URL do Render
-          API_URL="${{ secrets.RENDER_API_URL }}/api/health"
-          
-          echo "Pinging: $API_URL"
-          
-          # Fazer request com curl
-          response=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL")
-          
-          echo "Response: $response"
-          
-          if [ "$response" = "200" ]; then
-            echo "✓ API is healthy!"
-          else
-            echo "⚠ API returned: $response"
-          fi
-      
-      - name: Log timestamp
-        run: |
-          echo "Ping executed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+    keepalive:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Ping API Health Endpoint
+              run: |
+                  # Substitua com sua URL do Render
+                  API_URL="${{ secrets.RENDER_API_URL }}/api/health"
+
+                  echo "Pinging: $API_URL"
+
+                  # Fazer request com curl
+                  response=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL")
+
+                  echo "Response: $response"
+
+                  if [ "$response" = "200" ]; then
+                    echo "✓ API is healthy!"
+                  else
+                    echo "⚠ API returned: $response"
+                  fi
+
+            - name: Log timestamp
+              run: |
+                  echo "Ping executed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"

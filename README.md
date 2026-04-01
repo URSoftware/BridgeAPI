@@ -128,7 +128,9 @@ curl http://localhost:5000/api/health
 # {"status":"healthy","timestamp":"2026-04-01T21:05:20Z","version":"1.0.0"}
 ```
 
-Para instruções detalhadas, consulte [SETUP.md](SETUP.md)
+Para instruções detalhadas de instalação local, consulte [SETUP.md](SETUP.md)
+
+Para fazer deploy **gratuito** em um servidor online, consulte [FREE_DEPLOY.md](FREE_DEPLOY.md)
 
 ## Endpoints da API
 

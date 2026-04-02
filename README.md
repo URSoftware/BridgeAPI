@@ -121,7 +121,7 @@ console.log(result.data);
 - Com UptimeRobot para manter ativo
 - [Guia completo](docs/RENDER_SIMPLE_SETUP.md)
 
-#### 🚀 Serviço em Produção (Render)
+#### Serviço em Produção (Render)
 
 **BridgeAPI está online no Render:**
 
@@ -142,7 +142,7 @@ Quando deployado no Render, requisições para a internet originam-se dos seguin
 - `74.220.48.0/24`
 - `74.220.56.0/24`
 
-⚠️ **Nota:** Estes IPs são compartilhados com outros serviços Render na mesma região.
+**Nota:** Estes IPs são compartilhados com outros serviços Render na mesma região.
 
 ### Docker
 

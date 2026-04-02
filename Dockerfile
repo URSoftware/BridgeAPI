@@ -26,4 +26,4 @@ ENV DOTNET_NOLOGO=1
 
 EXPOSE 5000
 
-CMD ["dotnet", "BridgeAPI.dll"]
+ENTRYPOINT ["dotnet", "BridgeAPI.dll"]

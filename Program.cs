@@ -40,7 +40,7 @@ if (app.Environment.IsDevelopment())
 
 // REMOVED: app.UseHttpsRedirection() - Render handles TLS at proxy level
 app.UseCors("AllowAll");
-app.UseAuthorization();
+// REMOVED: app.UseAuthorization() - No auth configured, was blocking requests
 app.MapControllers();
 
 app.Run();

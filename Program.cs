@@ -19,5 +19,3 @@ var app = builder.Build();
 
 app.MapControllers();
 app.Run();
-
-app.Run();

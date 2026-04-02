@@ -1,46 +1,23 @@
 ﻿using BridgeAPI.Services;
 
-// BridgeAPI - REST API para conectar JavaScript a SQL Server/SQLite
-// Versao: 1.0.1 - Producao
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure URLs - Render uses PORT environment variable
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-// Add services to the container
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddLogging();
 
-// Register custom services
-builder.Services.AddScoped<IDatabaseService, DatabaseService>();
-builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
-
-// Add CORS support
-builder.Services.AddCors(options =>
+try
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+    builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+    builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
+}
+catch { }
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// REMOVED: app.UseHttpsRedirection() - Render handles TLS at proxy level
-app.UseCors("AllowAll");
-// REMOVED: app.UseAuthorization() - No auth configured, was blocking requests
 app.MapControllers();
+app.Run();
 
 app.Run();

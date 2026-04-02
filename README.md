@@ -81,32 +81,315 @@ POST /api/database/disconnect
 
 Abra `http://localhost:5000/swagger` após iniciar a API.
 
-## Exemplo JavaScript
+## Guia de Uso
+
+### Health Check
+
+Verifica se a API está online:
+
+```bash
+curl https://bridgeapi-9uhl.onrender.com/api/health
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-04-02T03:48:31.884091Z",
+  "version": "1.0.0"
+}
+```
+
+### Conectar ao Banco de Dados
+
+Inicia uma conexão com o banco:
 
 ```javascript
-const API = 'http://localhost:5000/api';
-
-// Conectar
-const { connectionId } = await (await fetch(`${API}/database/connect`, {
+const response = await fetch(`${API}/database/connect`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    databaseType: 'sqlserver',
-    connectionString: 'Server=localhost;Database=MyDB;...'
+    databaseType: 'sqlserver', // ou 'sqlite'
+    connectionString: 'Server=localhost;Database=MyDB;User Id=sa;Password=YourPassword;'
   })
-})).json();
+});
 
-// Executar
-const result = await (await fetch(`${API}/query/execute`, {
+const { connectionId } = await response.json();
+// Use connectionId para posteriores queries
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "connectionId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "connected",
+  "databaseType": "sqlserver"
+}
+```
+
+### Executar Query (SELECT)
+
+Executa queries de leitura:
+
+```javascript
+const result = await fetch(`${API}/query/execute`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    connectionId,
-    query: 'SELECT * FROM usuarios'
+    connectionId: '550e8400-e29b-41d4-a716-446655440000',
+    query: 'SELECT TOP 10 * FROM usuarios WHERE ativo = 1',
+    timeout: 30 // segundos (opcional, padrão: 30)
   })
-})).json();
+});
 
-console.log(result.data);
+const { data, rowsAffected } = await result.json();
+console.log(data); // Array de registros
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "data": [
+    { "id": 1, "nome": "João", "email": "joao@example.com", "ativo": true },
+    { "id": 2, "nome": "Maria", "email": "maria@example.com", "ativo": true }
+  ],
+  "rowsAffected": 2
+}
+```
+
+### Executar Comando (INSERT/UPDATE/DELETE)
+
+Executa comandos que modificam dados:
+
+```javascript
+const result = await fetch(`${API}/query/command`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    connectionId: '550e8400-e29b-41d4-a716-446655440000',
+    query: "INSERT INTO usuarios (nome, email, ativo) VALUES ('Pedro', 'pedro@example.com', 1)",
+    timeout: 30
+  })
+});
+
+const { rowsAffected } = await result.json();
+console.log(`${rowsAffected} registros inseridos`);
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "rowsAffected": 1,
+  "status": "success"
+}
+```
+
+### Desconectar
+
+Encerra a conexão:
+
+```javascript
+await fetch(`${API}/database/disconnect`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    connectionId: '550e8400-e29b-41d4-a716-446655440000'
+  })
+});
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "status": "disconnected",
+  "connectionId": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+## Exemplos Completos por Tecnologia
+
+### React
+
+```javascript
+import { useState } from 'react';
+
+const API = 'https://bridgeapi-9uhl.onrender.com/api';
+
+export function BancoDados() {
+  const [dados, setDados] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState(null);
+
+  const carregarDados = async () => {
+    setLoading(true);
+    setErro(null);
+    try {
+      // 1. Conectar
+      const connRes = await fetch(`${API}/database/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          databaseType: 'sqlserver',
+          connectionString: 'seu_connection_string'
+        })
+      });
+      const { connectionId } = await connRes.json();
+
+      // 2. Executar query
+      const queryRes = await fetch(`${API}/query/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          connectionId,
+          query: 'SELECT * FROM usuarios'
+        })
+      });
+      const { data } = await queryRes.json();
+      setDados(data);
+
+      // 3. Desconectar
+      await fetch(`${API}/database/disconnect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ connectionId })
+      });
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={carregarDados} disabled={loading}>
+        {loading ? 'Carregando...' : 'Carregar Dados'}
+      </button>
+      {erro && <p style={{ color: 'red' }}>Erro: {erro}</p>}
+      <ul>
+        {dados.map(item => (
+          <li key={item.id}>{item.nome} - {item.email}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+### Node.js / Express
+
+```javascript
+const express = require('express');
+const app = express();
+
+const API = 'https://bridgeapi-9uhl.onrender.com/api';
+
+app.get('/usuarios', async (req, res) => {
+  try {
+    // Conectar
+    const connRes = await fetch(`${API}/database/connect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        databaseType: 'sqlserver',
+        connectionString: process.env.DB_CONNECTION_STRING
+      })
+    });
+    const { connectionId } = await connRes.json();
+
+    // Executar query
+    const queryRes = await fetch(`${API}/query/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        connectionId,
+        query: 'SELECT * FROM usuarios'
+      })
+    });
+    const { data } = await queryRes.json();
+
+    // Desconectar
+    await fetch(`${API}/database/disconnect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connectionId })
+    });
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+app.listen(3000);
+```
+
+### Tratamento de Erros
+
+```javascript
+async function queryComErro() {
+  try {
+    const res = await fetch(`${API}/query/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        connectionId: 'invalid-id',
+        query: 'SELECT * FROM usuarios'
+      })
+    });
+
+    if (!res.ok) {
+      const { error, message } = await res.json();
+      console.error(`[${error}] ${message}`);
+      return null;
+    }
+
+    return await res.json();
+  } catch (err) {
+    console.error('Erro na requisição:', err.message);
+  }
+}
+```
+
+## Configuração e Variáveis de Ambiente
+
+### Local (.env)
+
+```env
+DATABASE_TYPE=sqlserver
+CONNECTION_STRING=Server=localhost;Database=MyDB;User Id=sa;Password=YourPassword;
+PORT=5000
+ASPNETCORE_ENVIRONMENT=Development
+```
+
+### Render
+
+Configure as variáveis de ambiente no dashboard do Render:
+- Variáveis de conexão com seu banco de dados
+- PORT: 10000 (já configurado)
+
+## Limites e Timeouts
+
+| Parâmetro | Valor Padrão | Máximo |
+|-----------|-------------|--------|
+| Timeout Query | 30 segundos | 300 segundos |
+| Tamanho máximo resposta | 100 MB | 100 MB |
+| Conexões simultâneas | Limitado | Dependente do plano |
+| Taxa de requisições | Ilimitada | Render: baseado no plano |
+
+## CORS
+
+A BridgeAPI permite requisições de qualquer origem por padrão. Se precisar restringir:
+
+**Modifique em Program.cs:**
+```csharp
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecific", policy =>
+        policy.WithOrigins("https://seu-dominio.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+});
 ```
 
 ## Deployment

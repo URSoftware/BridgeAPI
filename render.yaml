@@ -1,10 +1,7 @@
 services:
   - type: web
     name: bridgeapi
-    runtime: dotnet
-    runtimeVersion: 9.0
-    buildCommand: dotnet publish -c Release -o /opt/render/output
-    startCommand: dotnet /opt/render/output/BridgeAPI.dll
+    runtime: docker
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production

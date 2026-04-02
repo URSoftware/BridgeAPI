@@ -16,7 +16,12 @@ WORKDIR /app
 EXPOSE 5000
 
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_NOLOGO=1
 
 COPY --from=build /app/publish .
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD dotnet --info || exit 1
 
 ENTRYPOINT ["dotnet", "BridgeAPI.dll"]

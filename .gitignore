@@ -76,3 +76,6 @@ temp/
 # Documentation files (except README.md)
 RENDER_SETUP.md
 docs/*.md
+
+# Solution files
+*.sln

@@ -121,6 +121,29 @@ console.log(result.data);
 - Com UptimeRobot para manter ativo
 - [Guia completo](docs/RENDER_SIMPLE_SETUP.md)
 
+#### 🚀 Serviço em Produção (Render)
+
+**BridgeAPI está online no Render:**
+
+```
+API URL: https://bridgeapi-9uhl.onrender.com
+Service ID: srv-d76rdneequas73d0b4n0
+```
+
+**Health Check:**
+```bash
+curl https://bridgeapi-9uhl.onrender.com/api/health
+```
+
+**Informações de Rede:**
+
+Quando deployado no Render, requisições para a internet originam-se dos seguintes IPs:
+
+- `74.220.48.0/24`
+- `74.220.56.0/24`
+
+⚠️ **Nota:** Estes IPs são compartilhados com outros serviços Render na mesma região.
+
 ### Docker
 
 ```bash
@@ -130,16 +153,6 @@ docker run -p 5000:5000 bridgeapi
 # ou Docker Compose
 docker-compose up -d
 ```
-
-## Informações de Rede (Render)
-
-Quando deployado no Render, requisições para a internet originam-se dos seguintes IPs:
-
-**IP Ranges (Render - Região compartilhada):**
-- `74.220.48.0/24`
-- `74.220.56.0/24`
-
-⚠️ **Nota:** Estes IPs são compartilhados com outros serviços Render na mesma região e não são únicos para sua aplicação.
 
 ## Requisitos
 

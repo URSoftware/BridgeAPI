@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: bridgeapi
+    runtime: dotnet
+    runtimeVersion: 9.0
+    buildCommand: dotnet publish -c Release -o /opt/render/output
+    startCommand: dotnet /opt/render/output/BridgeAPI.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: PORT
+        value: "10000"
+    plan: free
+    autoDeploy: false

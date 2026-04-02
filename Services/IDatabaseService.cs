@@ -1,6 +1,6 @@
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using BridgeAPI.Models;
 
 namespace BridgeAPI.Services;
@@ -46,13 +46,11 @@ public class DatabaseService : IDatabaseService
         {
             _logger.LogInformation($"Attempting to connect to {databaseType} database");
 
-            // Validate connection string
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 return (false, "", "Invalid connection string", "Connection string cannot be empty");
             }
 
-            // Test the connection
             bool canConnect = await TestConnectionAsync(databaseType, connectionString, timeout);
 
             if (!canConnect)
@@ -60,7 +58,6 @@ public class DatabaseService : IDatabaseService
                 return (false, "", "Connection failed", "Failed to connect to database. Please verify your connection string and credentials.");
             }
 
-            // Create and store connection
             string connectionId = _connectionManager.CreateConnection(connectionString, databaseType, timeout);
             _logger.LogInformation($"Connection created with ID: {connectionId}");
 
@@ -111,7 +108,6 @@ public class DatabaseService : IDatabaseService
             string connectionString = connDetails.ConnectionString;
             string databaseType = connDetails.DatabaseType;
 
-            // Execute based on database type
             if (databaseType.Equals("sqlserver", StringComparison.OrdinalIgnoreCase))
             {
                 return await ExecuteSqlServerQueryAsync(connectionString, query, timeout);
@@ -183,8 +179,8 @@ public class DatabaseService : IDatabaseService
             }
             else if (databaseType.Equals("sqlite", StringComparison.OrdinalIgnoreCase))
             {
-                using var connection = new SQLiteConnection(connectionString);
-                connection.Open();
+                using var connection = new SqliteConnection(connectionString);
+                await connection.OpenAsync();
                 connection.Close();
                 return true;
             }
@@ -230,15 +226,32 @@ public class DatabaseService : IDatabaseService
     {
         try
         {
-            using var connection = new SQLiteConnection(connectionString);
+            using var connection = new SqliteConnection(connectionString);
             await connection.OpenAsync();
 
-            using var command = new SQLiteCommand(query, connection);
+            using var command = connection.CreateCommand();
+            command.CommandText = query;
             command.CommandTimeout = timeout;
 
-            using var adapter = new SQLiteDataAdapter(command);
             var dataTable = new DataTable();
-            adapter.Fill(dataTable);
+            using var reader = await command.ExecuteReaderAsync();
+
+            // Load column schema
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                dataTable.Columns.Add(reader.GetName(i), typeof(object));
+            }
+
+            // Load rows
+            while (await reader.ReadAsync())
+            {
+                var row = dataTable.NewRow();
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    row[i] = reader.IsDBNull(i) ? DBNull.Value : reader.GetValue(i);
+                }
+                dataTable.Rows.Add(row);
+            }
 
             return (true, dataTable, dataTable.Rows.Count, null, null);
         }
@@ -262,12 +275,15 @@ public class DatabaseService : IDatabaseService
             using var dbCommand = new SqlCommand(command, connection);
             dbCommand.CommandTimeout = timeout;
 
-            // Add parameters
             if (parameters != null && parameters.Count > 0)
             {
                 foreach (var param in parameters)
                 {
-                    var sqlParam = ConvertToSqlParameter(param);
+                    var sqlParam = new System.Data.SqlClient.SqlParameter
+                    {
+                        ParameterName = param.Name,
+                        Value = param.Value ?? DBNull.Value
+                    };
                     dbCommand.Parameters.Add(sqlParam);
                 }
             }
@@ -289,18 +305,20 @@ public class DatabaseService : IDatabaseService
     {
         try
         {
-            using var connection = new SQLiteConnection(connectionString);
+            using var connection = new SqliteConnection(connectionString);
             await connection.OpenAsync();
 
-            using var dbCommand = new SQLiteCommand(command, connection);
+            using var dbCommand = connection.CreateCommand();
+            dbCommand.CommandText = command;
             dbCommand.CommandTimeout = timeout;
 
-            // Add parameters
             if (parameters != null && parameters.Count > 0)
             {
                 foreach (var param in parameters)
                 {
-                    var sqliteParam = ConvertToSqliteParameter(param);
+                    var sqliteParam = dbCommand.CreateParameter();
+                    sqliteParam.ParameterName = param.Name;
+                    sqliteParam.Value = param.Value ?? DBNull.Value;
                     dbCommand.Parameters.Add(sqliteParam);
                 }
             }
@@ -312,23 +330,5 @@ public class DatabaseService : IDatabaseService
         {
             return (false, 0, "SQLite command error", ex.Message);
         }
-    }
-
-    private System.Data.SqlClient.SqlParameter ConvertToSqlParameter(DatabaseParameter param)
-    {
-        return new System.Data.SqlClient.SqlParameter
-        {
-            ParameterName = param.Name,
-            Value = param.Value ?? DBNull.Value
-        };
-    }
-
-    private SQLiteParameter ConvertToSqliteParameter(DatabaseParameter param)
-    {
-        return new SQLiteParameter
-        {
-            ParameterName = param.Name,
-            Value = param.Value ?? DBNull.Value
-        };
     }
 }

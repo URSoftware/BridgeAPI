@@ -1,7 +1,7 @@
-using BridgeAPI.Services;
+﻿using BridgeAPI.Services;
 
 // BridgeAPI - REST API para conectar JavaScript a SQL Server/SQLite
-// Versão: 1.0.0 - Produção
+// Versao: 1.0.1 - Producao (Fix: Linux/Render compatibility)
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +38,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// REMOVED: app.UseHttpsRedirection() - Render handles TLS at proxy level
 app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();

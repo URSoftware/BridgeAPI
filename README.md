@@ -131,6 +131,16 @@ docker run -p 5000:5000 bridgeapi
 docker-compose up -d
 ```
 
+## Informações de Rede (Render)
+
+Quando deployado no Render, requisições para a internet originam-se dos seguintes IPs:
+
+**IP Ranges (Render - Região compartilhada):**
+- `74.220.48.0/24`
+- `74.220.56.0/24`
+
+⚠️ **Nota:** Estes IPs são compartilhados com outros serviços Render na mesma região e não são únicos para sua aplicação.
+
 ## Requisitos
 
 - .NET 9.0 SDK

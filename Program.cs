@@ -5,6 +5,10 @@ using BridgeAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure URLs - Render uses PORT environment variable
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

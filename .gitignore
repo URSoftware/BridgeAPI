@@ -67,3 +67,12 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Script files (use local, don't commit)
+*.bat
+*.sh
+*.ps1
+
+# Documentation files (except README.md)
+RENDER_SETUP.md
+docs/*.md

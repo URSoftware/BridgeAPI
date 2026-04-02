@@ -1,5 +1,8 @@
 using BridgeAPI.Services;
 
+// BridgeAPI - REST API para conectar JavaScript a SQL Server/SQLite
+// Versão: 1.0.0 - Produção
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container

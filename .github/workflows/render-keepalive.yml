@@ -1,11 +1,8 @@
-name: Keep Render API Alive
+﻿name: Keep Render API Alive
 
 on:
     schedule:
-        # Executar a cada 5 minutos
         - cron: "*/5 * * * *"
-
-    # Permitir execução manual
     workflow_dispatch:
 
 jobs:
@@ -15,20 +12,18 @@ jobs:
         steps:
             - name: Ping API Health Endpoint
               run: |
-                  # Substitua com sua URL do Render
-                  API_URL="${{ secrets.RENDER_API_URL }}/api/health"
+                  API_URL="https://bridgeapi-9uhi.onrender.com/api/health"
 
                   echo "Pinging: $API_URL"
 
-                  # Fazer request com curl
-                  response=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL")
+                  response=$(curl -sf -o /dev/null -w "%{http_code}" --max-time 30 "$API_URL" || true)
 
                   echo "Response: $response"
 
                   if [ "$response" = "200" ]; then
-                    echo "✓ API is healthy!"
+                    echo "API is healthy!"
                   else
-                    echo "⚠ API returned: $response"
+                    echo "API returned: $response (may be cold starting)"
                   fi
 
             - name: Log timestamp

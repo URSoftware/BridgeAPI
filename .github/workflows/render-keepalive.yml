@@ -12,7 +12,7 @@ jobs:
         steps:
             - name: Ping API Health Endpoint
               run: |
-                  API_URL="https://bridgeapi-9uhi.onrender.com/api/health"
+                  API_URL="https://bridgeapi-9uhl.onrender.com/api/health"
 
                   echo "Pinging: $API_URL"
 
